@@ -1,5 +1,6 @@
 #include "buffer.hpp"
 #include <cassert>
+#include <utility>
 
 queuing_system::Buffer::Buffer(size_t k):
   capacity(k)
@@ -32,10 +33,12 @@ void queuing_system::Buffer::push(const Bid & bid)
   queue.push_back(bid);
 }
 
-void queuing_system::Buffer::pop() noexcept
+queuing_system::Bid queuing_system::Buffer::extract()
 {
   assert(!queue.empty());
+  Bid b = std::move(queue.front());
   queue.pop_front();
+  return b;
 }
 
 const queuing_system::Bid & queuing_system::Buffer::front() const

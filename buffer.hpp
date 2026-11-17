@@ -16,7 +16,7 @@ namespace queuing_system
     size_t getRejectedCount() const noexcept;
 
     void push(const Bid & bid);
-    void pop() noexcept;
+    Bid extract();
     const Bid & front() const;
 
   private:
