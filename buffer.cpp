@@ -23,14 +23,24 @@ size_t queuing_system::Buffer::getRejectedCount() const noexcept
   return rejected_count;
 }
 
-void queuing_system::Buffer::push(const Bid & bid)
+const std::deque< queuing_system::Bid > & queuing_system::Buffer::getQueue() const noexcept
+{
+  return queue;
+}
+
+bool queuing_system::Buffer::push(const Bid & bid, Bid & rejectedBid)
 {
   if (isFull())
   {
+    rejectedBid = queue.back();
     queue.pop_back();
-    rejected_count++;
+    ++rejected_count;
+    queue.push_back(bid);
+    return true;
   }
+
   queue.push_back(bid);
+  return false;
 }
 
 queuing_system::Bid queuing_system::Buffer::extract()

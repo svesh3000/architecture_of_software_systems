@@ -14,8 +14,9 @@ namespace queuing_system
     bool isEmpty() const noexcept;
     size_t size() const noexcept;
     size_t getRejectedCount() const noexcept;
+    const std::deque< Bid > & getQueue() const noexcept;
 
-    void push(const Bid & bid);
+    bool push(const Bid & bid, Bid & rejectedBid);
     Bid extract();
     const Bid & front() const;
 

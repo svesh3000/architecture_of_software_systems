@@ -8,14 +8,17 @@ queuing_system::Device::Device(size_t deviceId):
 void queuing_system::Device::putOnService(const queuing_system::Bid & bid, double currentTime, double time)
 {
   busy = true;
+  serviceStartTime = currentTime;
   releaseTime = currentTime + time;
   currentBid = bid;
 }
 
 void queuing_system::Device::freeDevice() noexcept
 {
+  totalBusyTime += releaseTime - serviceStartTime;
   busy = false;
   releaseTime = 0.0;
+  serviceStartTime = 0.0;
   currentBid = Bid{};
 }
 
@@ -39,4 +42,14 @@ const queuing_system::Bid & queuing_system::Device::getCurrentBid() const noexce
 {
   assert(busy && "Cannot get currentBid of a free device!");
   return currentBid;
+}
+
+double queuing_system::Device::getServiceStartTime() const noexcept
+{
+  return serviceStartTime;
+}
+
+double queuing_system::Device::getTotalBusyTime() const noexcept
+{
+  return totalBusyTime;
 }

@@ -16,19 +16,19 @@ queuing_system::Device * queuing_system::selectDevice(std::vector< Device > & de
   return nullptr;
 }
 
-void queuing_system::handleArrival(const Bid & newBid, std::vector< Device > & devices, Buffer & buffer,
-    size_t & lastIndex, double currentTime, std::mt19937 & gen, std::exponential_distribution< double > & pz1_dist)
+bool queuing_system::handleArrival(const Bid & newBid, std::vector< Device > & devices, Buffer & buffer,
+    size_t & lastIndex, double currentTime, std::mt19937 & gen, std::exponential_distribution< double > & pz1_dist,
+    Bid & rejectedBid)
 {
   Device * freeDevice = selectDevice(devices, lastIndex);
   if (freeDevice != nullptr)
   {
-    double serviceTime = pz1_dist(gen);
+    const double serviceTime = pz1_dist(gen);
     freeDevice->putOnService(newBid, currentTime, serviceTime);
+    return false;
   }
-  else
-  {
-    buffer.push(newBid);
-  }
+
+  return buffer.push(newBid, rejectedBid);
 }
 
 void queuing_system::handleDeparture(Device & device, Buffer & buffer, double currentTime, std::mt19937 & gen,

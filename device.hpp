@@ -17,12 +17,17 @@ namespace queuing_system
     bool isBusy() const noexcept;
     double getReleaseTime() const noexcept;
     const Bid & getCurrentBid() const noexcept;
+    double getServiceStartTime() const noexcept;
+    double getTotalBusyTime() const noexcept;
 
   private:
     size_t id;
     bool busy = false;
     double releaseTime = 0.0;
     Bid currentBid;
+    double serviceStartTime = 0.0;
+    double totalBusyTime = 0.0;
   };
 }
+
 #endif
