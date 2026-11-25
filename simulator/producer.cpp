@@ -31,4 +31,9 @@ namespace queuing_system
   {
     return id;
   }
+
+  size_t queuing_system::Producer::getNextBidId() const noexcept
+  {
+    return bidCounter + 1;
+  }
 }

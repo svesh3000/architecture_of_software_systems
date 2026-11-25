@@ -7,7 +7,7 @@ void queuing_system::runStepMode(Simulator & simulator, double arrivalEndTime)
 {
   std::cout << "\n===== STEP-BY-STEP SIMULATION =====\n";
 
-  printSimulationState(simulator);
+  printSimulationState(simulator, arrivalEndTime);
 
   std::string command;
   while (true)
@@ -36,7 +36,7 @@ void queuing_system::runStepMode(Simulator & simulator, double arrivalEndTime)
       break;
     }
 
-    printSimulationState(simulator);
+    printSimulationState(simulator, arrivalEndTime);
   }
 
   printSimulationSummary(simulator);

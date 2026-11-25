@@ -1,6 +1,8 @@
 #include "output.hpp"
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <vector>
 
 namespace
 {
@@ -16,6 +18,15 @@ namespace
             + varianceColumnWidth * 2 + 9,
         '-') << '\n';
   }
+
+  struct CalendarEvent
+  {
+    double time;
+    bool isArrival;
+    size_t sourceId;
+    size_t requestId;
+    size_t deviceId;
+  };
 }
 
 void queuing_system::printSimulationSummary(const Simulator & simulator)
@@ -118,6 +129,63 @@ void queuing_system::printAutomaticSimulationSummary(const Simulator & simulator
   }
 }
 
+void queuing_system::printEventCalendar(const Simulator & simulator, double arrivalEndTime)
+{
+  std::vector< CalendarEvent > events;
+  for (const auto & producer : simulator.getProducers())
+  {
+    if (producer.getNextArrivalTime() <= arrivalEndTime)
+    {
+      events.push_back({producer.getNextArrivalTime(), true, producer.getId(), producer.getNextBidId(), 0});
+    }
+  }
+
+  for (const auto & device : simulator.getDevices())
+  {
+    if (device.isBusy())
+    {
+      const auto & bid = device.getCurrentBid();
+      events.push_back({device.getReleaseTime(), false, bid.sourceId, bid.id, device.getId()});
+    }
+  }
+
+  std::sort(events.begin(), events.end(),
+      [](const CalendarEvent & lhs, const CalendarEvent & rhs)
+      {
+        if (lhs.time != rhs.time)
+        {
+          return lhs.time < rhs.time;
+        }
+
+        return lhs.isArrival && !rhs.isArrival;
+      });
+
+  std::cout << "\n===== EVENT CALENDAR =====\n";
+  std::cout << std::left << std::setw(14) << "Event time" << std::setw(14) << "Type" << std::setw(12) << "Source"
+            << std::setw(12) << "Request" << std::setw(12) << "Device" << '\n';
+
+  std::cout << std::string(64, '-') << '\n';
+  for (const auto & event : events)
+  {
+    std::cout << std::fixed << std::setprecision(5) << std::left << std::setw(14) << event.time << std::setw(14)
+              << (event.isArrival ? "Arrival" : "Departure") << std::setw(12) << event.sourceId << std::setw(12)
+              << event.requestId;
+
+    if (event.isArrival)
+    {
+      std::cout << std::setw(12) << "-";
+    }
+    else
+    {
+      std::cout << std::setw(12) << event.deviceId;
+    }
+
+    std::cout << '\n';
+  }
+
+  std::cout << std::string(64, '-') << '\n';
+}
+
 void queuing_system::printSourceStatistics(const Simulator & simulator)
 {
   const auto & statistics = simulator.getSourceStatistics();
@@ -167,15 +235,16 @@ void queuing_system::printDeviceStatistics(const Simulator & simulator)
   std::cout << std::string(27, '-') << '\n';
 }
 
-void queuing_system::printSimulationState(const Simulator & simulator)
+void queuing_system::printSimulationState(const Simulator & simulator, double arrivalEndTime)
 {
   std::cout << "\n===== CURRENT SIMULATION STATE =====\n";
   std::cout << std::fixed << std::setprecision(5);
-
   std::cout << "Current time: " << simulator.getCurrentTime() << '\n';
   std::cout << "Generated: " << simulator.getGeneratedCount() << '\n';
   std::cout << "Served: " << simulator.getServedCount() << '\n';
   std::cout << "Rejected: " << simulator.getRejectedCount() << '\n';
+
+  printEventCalendar(simulator, arrivalEndTime);
 
   std::cout << "\nDEVICES:\n";
 

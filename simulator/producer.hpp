@@ -15,6 +15,7 @@ namespace queuing_system
 
     double getNextArrivalTime() const noexcept;
     size_t getId() const noexcept;
+    size_t getNextBidId() const noexcept;
 
   private:
     size_t id;
